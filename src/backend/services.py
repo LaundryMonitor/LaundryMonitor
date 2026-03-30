@@ -55,7 +55,9 @@ def create_report(session: Session, payload: ReportCreateRequest) -> ReportRecor
     return _to_report_record(report)
 
 
-def list_machines_with_status(session: Session, *, now: datetime | None = None) -> list[MachineStatusRecord]:
+def list_machines_with_status(
+    session: Session, *, now: datetime | None = None
+) -> list[MachineStatusRecord]:
     effective_now = _to_utc_datetime(now or datetime.now(timezone.utc))
     machines = session.scalars(select(Machine).order_by(Machine.id)).all()
     machine_statuses: list[MachineStatusRecord] = []
@@ -80,7 +82,9 @@ def list_machines_with_status(session: Session, *, now: datetime | None = None) 
     return machine_statuses
 
 
-def get_machine_history(session: Session, machine_id: int, *, limit: int = 20) -> list[ReportRecord]:
+def get_machine_history(
+    session: Session, machine_id: int, *, limit: int = 20
+) -> list[ReportRecord]:
     _require_machine(session, machine_id)
     reports = session.scalars(
         select(Report)

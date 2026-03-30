@@ -19,7 +19,13 @@ streamlit = "^1.44.1"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.4"
+pytest-cov = "^5.0.0"
 ruff = "^0.11.0"
+flake8 = "^7.1.1"
+bandit = "^1.7.9"
+radon = "^6.0.1"
+locust = "^2.31.8"
+pre-commit = "^4.0.1"
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]

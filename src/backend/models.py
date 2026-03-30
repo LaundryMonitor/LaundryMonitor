@@ -39,7 +39,10 @@ class Report(Base):
     __table_args__ = (Index("ix_reports_machine_id_timestamp", "machine_id", "timestamp"),)
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    machine_id: Mapped[int] = mapped_column(ForeignKey("machines.id", ondelete="CASCADE"), nullable=False)
+    machine_id: Mapped[int] = mapped_column(
+        ForeignKey("machines.id", ondelete="CASCADE"),
+        nullable=False,
+    )
     timestamp: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,
