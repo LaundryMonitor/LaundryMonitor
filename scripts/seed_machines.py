@@ -13,8 +13,12 @@ from backend.types import MachineType
 DEFAULT_MACHINES: tuple[tuple[str, MachineType], ...] = (
     ("Washer 1", MachineType.WASH),
     ("Washer 2", MachineType.WASH),
+    ("Washer 3", MachineType.WASH),
+    ("Washer 4", MachineType.WASH),
     ("Dryer 1", MachineType.DRY),
     ("Dryer 2", MachineType.DRY),
+    ("Dryer 3", MachineType.DRY),
+    ("Dryer 4", MachineType.DRY),
 )
 
 

@@ -1,0 +1,25 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    environment:
+      LAUNDRY_MONITOR_DB_PATH: /data/laundry_monitor.db
+    ports:
+      - "8000:8000"
+    volumes:
+      - laundry_monitor_data:/data
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    environment:
+      LAUNDRY_MONITOR_API_URL: http://backend:8000
+    ports:
+      - "8501:8501"
+    depends_on:
+      - backend
+
+volumes:
+  laundry_monitor_data:
