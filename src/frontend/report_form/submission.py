@@ -8,6 +8,7 @@ from frontend.api_client import (
     LaundryAPIClient,
     build_report_payload,
 )
+from frontend.report_form.fields import reset_report_form_state
 
 
 def submit_report_form(
@@ -33,6 +34,8 @@ def submit_report_form(
         return None, str(exc), machines
     except (BackendUnavailableError, BackendResponseError) as exc:
         return None, str(exc), machines
+
+    reset_report_form_state()
 
     try:
         refreshed_machines = client.get_machines()
