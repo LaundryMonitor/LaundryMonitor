@@ -1,1 +1,1 @@
-"""Streamlit frontend package for Laundry Monitor."""
+"""Streamlit frontend package for the Laundry Monitor app."""
