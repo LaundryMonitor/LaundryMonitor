@@ -34,6 +34,8 @@ async def post_report(
     payload: ReportCreateRequest,
     session: Annotated[Session, Depends(get_db)],
 ) -> ReportResponse:
+    """Store a new machine report submitted by a user."""
+
     try:
         report = create_report(session, payload)
     except MachineNotFoundError as exc:
@@ -58,6 +60,8 @@ async def post_report(
 async def get_machines(
     session: Annotated[Session, Depends(get_db)],
 ) -> list[MachineStatusResponse]:
+    """Return all machines with inferred current statuses."""
+
     machines = list_machines_with_status(session)
     return [MachineStatusResponse.model_validate(machine) for machine in machines]
 
@@ -74,6 +78,8 @@ async def get_machine_report_history(
     session: Annotated[Session, Depends(get_db)],
     limit: Annotated[int, Query(ge=1, le=100)] = 20,
 ) -> list[ReportResponse]:
+    """Return recent reports for one machine."""
+
     try:
         reports = get_machine_history(session, machine_id, limit=limit)
     except MachineNotFoundError as exc:
@@ -86,4 +92,6 @@ async def get_machine_report_history(
 
 
 def _to_report_response(report: ReportRecord) -> ReportResponse:
+    """Convert a service-layer record into an API response."""
+
     return ReportResponse.model_validate(report)
