@@ -11,6 +11,8 @@ RADON_COMMAND = ["poetry", "run", "radon", "cc", "src/", "-j"]
 
 
 def main() -> int:
+    """Run project complexity checks and print any violations."""
+
     process = subprocess.run(RADON_COMMAND, capture_output=True, text=True, check=False)
     if process.returncode != 0:
         print(process.stdout)
@@ -33,6 +35,8 @@ def main() -> int:
 
 
 def find_failures(data: dict[str, list[dict[str, object]]]) -> Iterable[dict[str, object]]:
+    """Yield code blocks that exceed the configured complexity limit."""
+
     for path, blocks in data.items():
         for block in blocks:
             complexity = block.get("complexity")

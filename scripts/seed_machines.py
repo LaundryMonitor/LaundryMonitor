@@ -23,6 +23,8 @@ DEFAULT_MACHINES: tuple[tuple[str, MachineType], ...] = (
 
 
 def seed_machines(session: Session, machine_specs: Sequence[tuple[str, MachineType]]) -> int:
+    """Insert missing machine records without creating duplicates."""
+
     existing_names = set(session.scalars(select(Machine.name)))
     created_count = 0
 
@@ -39,6 +41,8 @@ def seed_machines(session: Session, machine_specs: Sequence[tuple[str, MachineTy
 
 
 def main() -> None:
+    """Initialize storage and seed the default machine list."""
+
     init_database()
     with SessionLocal() as session:
         created_count = seed_machines(session, DEFAULT_MACHINES)
