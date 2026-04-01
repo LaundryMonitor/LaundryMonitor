@@ -11,6 +11,8 @@ BUSY_WITHOUT_TIME_WINDOW = timedelta(hours=4)
 
 @dataclass(frozen=True, slots=True)
 class ReportSnapshot:
+    """Minimal report data required for machine status inference."""
+
     status: ReportStatus
     timestamp: datetime
     time_remaining: int | None
@@ -20,12 +22,10 @@ def infer_machine_status(
     latest_report: ReportSnapshot | None,
     now: datetime,
 ) -> InferredStatus:
-    """
-    Infer a machine status from its latest report.
+    """Infer the current machine status from its latest report."""
 
-    Behavior for machines with no reports: treat as FREE.
-    This keeps first-time usage simple and avoids blocking users with "unknown."
-    """
+    # Behavior for machines with no reports: treat as FREE.
+    # This keeps first-time usage simple and avoids blocking users with "unknown."
     if latest_report is None:
         return InferredStatus.FREE
 
@@ -39,6 +39,8 @@ def infer_machine_status(
 
 
 def _infer_from_busy_report(report: ReportSnapshot, now: datetime) -> InferredStatus:
+    """Infer status specifically from a busy report payload."""
+
     if report.time_remaining is None:
         stale_busy_cutoff = report.timestamp + BUSY_WITHOUT_TIME_WINDOW
         if now < stale_busy_cutoff:

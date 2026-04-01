@@ -8,6 +8,8 @@ from backend.database import init_database
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
+    """Initialize database tables during FastAPI application startup."""
+
     init_database()
     yield
 

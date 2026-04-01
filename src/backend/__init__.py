@@ -1,1 +1,1 @@
-"""Backend package for Laundry Monitor."""
+"""Core backend package for the Laundry Monitor application."""
