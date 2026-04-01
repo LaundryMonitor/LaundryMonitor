@@ -12,7 +12,7 @@ authors = [
   { name = "Damir Sadykov" },
 ]
 dependencies = [
-    "fastapi>=0.116.0,<0.117.0",
+    "fastapi (>=0.135.2,<0.136.0)",
     "pydantic>=2.0.0,<3.0.0",
     "sqlalchemy>=2.0.36,<3.0.0",
     "uvicorn>=0.35.0,<0.36.0",
