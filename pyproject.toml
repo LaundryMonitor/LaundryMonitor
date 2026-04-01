@@ -1,21 +1,30 @@
-[tool.poetry]
+[project]
 name = "laundry-monitor"
 version = "0.1.0"
 description = "Laundry Monitor backend and Streamlit frontend"
-authors = ["Laundry Monitor Team"]
 readme = "README.md"
+requires-python = ">=3.11,<4.0"
+authors = [
+  { name = "Ilia Kliantsevich" },
+  { name = "Amirkhan Kurbanov" },
+  { name = "Rashid Badamshin" },
+  { name = "Aidar Sarvartdinov" },
+  { name = "Damir Sadykov" },
+]
+dependencies = [
+    "fastapi>=0.116.0,<0.117.0",
+    "pydantic>=2.0.0,<3.0.0",
+    "sqlalchemy>=2.0.36,<3.0.0",
+    "uvicorn>=0.35.0,<0.36.0",
+    "httpx>=0.28.1,<0.29.0",
+    "streamlit>=1.44.1,<2.0.0",
+]
+
+[tool.poetry]
 packages = [
     { include = "backend", from = "src" },
     { include = "frontend", from = "src" },
 ]
-
-[tool.poetry.dependencies]
-python = "^3.11"
-fastapi = "^0.116.0"
-sqlalchemy = "^2.0.36"
-uvicorn = "^0.35.0"
-httpx = "^0.28.1"
-streamlit = "^1.44.1"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.4"
