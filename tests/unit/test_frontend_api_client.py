@@ -6,6 +6,7 @@ import httpx
 import pytest
 
 import frontend.api_client as api_client_module
+import frontend.report_form.submission as submission_module
 from frontend.api_client import (
     BackendResponseError,
     BackendUnavailableError,
@@ -13,7 +14,9 @@ from frontend.api_client import (
     build_report_payload,
     parse_optional_non_negative_int,
 )
+from frontend.api_client.response_parsing import extract_error_detail
 from frontend.config import DEFAULT_BACKEND_URL, get_backend_base_url
+from frontend.report_form.submission import submit_report_form
 
 
 class StubHTTPXClient:
@@ -177,6 +180,22 @@ def test_submit_report_raises_on_unexpected_payload_type(
         client.submit_report({"machine_id": 1, "status": "busy"})
 
 
+def test_get_machines_raises_on_unexpected_payload_type(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    response = httpx.Response(200, json={"unexpected": True})
+    stub_client = StubHTTPXClient(response=response)
+    monkeypatch.setattr(
+        api_client_module.httpx,
+        "Client",
+        StubHTTPXClientFactory(stub_client),
+    )
+    client = LaundryAPIClient("http://backend:8000")
+
+    with pytest.raises(BackendResponseError):
+        client.get_machines()
+
+
 def test_machine_history_raises_on_unexpected_payload_type(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -250,3 +269,61 @@ def test_backend_response_error_invalid_json_body(monkeypatch: pytest.MonkeyPatc
 
     with pytest.raises(BackendResponseError, match="invalid JSON"):
         client.get_machines()
+
+
+class StubSubmissionClient:
+    def __init__(
+        self,
+        *,
+        submit_response: dict[str, Any],
+        machines_response: list[dict[str, Any]] | None = None,
+        machines_error: Exception | None = None,
+    ) -> None:
+        self.submit_response = submit_response
+        self.machines_response = machines_response or []
+        self.machines_error = machines_error
+        self.submitted_payload: dict[str, Any] | None = None
+
+    def submit_report(self, payload: dict[str, Any]) -> dict[str, Any]:
+        self.submitted_payload = payload
+        return self.submit_response
+
+    def get_machines(self) -> list[dict[str, Any]]:
+        if self.machines_error is not None:
+            raise self.machines_error
+        return self.machines_response
+
+
+def test_submit_report_form_returns_refreshed_machines(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    reset_calls: list[str] = []
+    monkeypatch.setattr(
+        submission_module,
+        "reset_report_form_state",
+        lambda: reset_calls.append("reset"),
+    )
+    client = StubSubmissionClient(
+        submit_response={"id": 7},
+        machines_response=[{"id": 1, "inferred_status": "busy"}],
+    )
+
+    submit_message, submit_error, machines = submit_report_form(
+        client,
+        machine_id=1,
+        status="busy",
+        time_remaining_text="35",
+        reporter_name_text=" Polina ",
+        machines=[{"id": 1, "inferred_status": "free"}],
+    )
+
+    assert client.submitted_payload == {
+        "machine_id": 1,
+        "status": "busy",
+        "time_remaining": 35,
+        "reporter_name": "Polina",
+    }
+    assert reset_calls == ["reset"]
+    assert submit_message == "Report #7 submitted."
+    assert submit_error is None
+    assert machines == [{"id": 1, "inferred_status": "busy"}]
