@@ -47,3 +47,33 @@ def submit_report_form(
         )
 
     return f"Report #{response_data['id']} submitted.", None, refreshed_machines
+
+
+def submit_free_report(
+    client: LaundryAPIClient,
+    *,
+    machine_id: int,
+    machines: list[dict[str, Any]],
+) -> tuple[str | None, str | None, list[dict[str, Any]]]:
+    """Submit a free report directly from a machine card."""
+
+    try:
+        response_data = client.submit_report(
+            {
+                "machine_id": machine_id,
+                "status": "free",
+            }
+        )
+    except (BackendUnavailableError, BackendResponseError) as exc:
+        return None, str(exc), machines
+
+    try:
+        refreshed_machines = client.get_machines()
+    except (BackendUnavailableError, BackendResponseError) as exc:
+        return (
+            f"Report #{response_data['id']} submitted.",
+            f"Report was submitted, but machine refresh failed: {exc}",
+            machines,
+        )
+
+    return f"Report #{response_data['id']} submitted.", None, refreshed_machines

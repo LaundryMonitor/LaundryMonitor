@@ -19,11 +19,6 @@ def apply_report_form_reset() -> None:
     if not st.session_state.pop(FORM_RESET_KEY, False):
         return
 
-    # Restore form fields to their default values.
-    st.session_state[FORM_STATUS_KEY] = DEFAULT_REPORT_STATUS
-    st.session_state[FORM_TIME_REMAINING_KEY] = ""
-    st.session_state[FORM_REPORTER_KEY] = ""
-
 
 def initialize_report_form_state(machine_options: dict[str, int]) -> None:
     """Initialize default state for the report form widgets."""
@@ -72,15 +67,13 @@ def collect_report_fields(
         key=FORM_STATUS_KEY,
     )
 
-    # Show remaining time only for busy reports.
-    if status == "busy":
-        time_remaining_text = st.text_input(
-            "Time remaining (minutes, optional)",
-            help="Only used for busy status.",
-            key=FORM_TIME_REMAINING_KEY,
-        )
-    else:
-        time_remaining_text = ""
+    # Keep the time field visible, but editable only for busy reports.
+    time_remaining_text = st.text_input(
+        "Time remaining (minutes, optional)",
+        help="Only used for busy status.",
+        key=FORM_TIME_REMAINING_KEY,
+        disabled=status != "busy",
+    )
 
     # Render optional metadata and the submit action last.
     reporter_name_text = st.text_input(

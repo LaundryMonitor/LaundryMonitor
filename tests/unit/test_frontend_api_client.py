@@ -14,7 +14,6 @@ from frontend.api_client import (
     build_report_payload,
     parse_optional_non_negative_int,
 )
-from frontend.api_client.response_parsing import extract_error_detail
 from frontend.config import DEFAULT_BACKEND_URL, get_backend_base_url
 from frontend.report_form.submission import submit_report_form
 
