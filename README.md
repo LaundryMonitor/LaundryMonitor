@@ -135,18 +135,63 @@ poetry run pytest --cov=src --cov-report=term-missing --cov-fail-under=70
 
 ## Quality Checks
 
+Dependency Validation (pass without errors)
+
 ```bash
 poetry check
+```
+
+Style Conformance (PEP8) (0 errors)
+
+```bash
 poetry run flake8 src/ tests/
+```
+
+Unit Tests Pass Rate (100% pass)
+
+```bash
 poetry run pytest
+```
+
+Line Coverage (>= 70%)
+
+```bash
 poetry run pytest --cov=src --cov-report=term-missing --cov-fail-under=70
+```
+
+Cyclomatic Complexity (< 8 per function)
+
+```bash
 poetry run radon cc src/ -a -s
+```
+
+Cyclomatic Complexity Gate (< 8 per function)
+
+```bash
 poetry run python scripts/check_complexity.py
+```
+
+Maintainability Index (> 65, A or B grade)
+
+```bash
 poetry run radon mi src/ -s
+```
+
+High-severity Vulnerabilities (0 findings)
+
+```bash
 poetry run bandit -r src/ -ll
 ```
 
+OpenAPI Contract Completeness (all endpoints documented in OpenAPI)
+
+```bash
+xdg-open http://127.0.0.1:8000/docs
+```
+
 Locust smoke (requires backend running and machines seeded):
+
+API Response Time (P95 < 300ms, local)
 
 ```bash
 poetry run locust -f tests/load/locustfile.py --headless -u 1 -r 1 -t 10s
