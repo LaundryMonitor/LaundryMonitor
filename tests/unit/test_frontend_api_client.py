@@ -6,6 +6,7 @@ import httpx
 import pytest
 
 import frontend.api_client as api_client_module
+import frontend.page.flash as page_flash_module
 import frontend.report_form.submission as submission_module
 from frontend.api_client import (
     BackendResponseError,
@@ -97,6 +98,21 @@ def test_build_report_payload_ignores_time_for_non_busy_status() -> None:
     }
 
 
+def test_build_report_payload_ignores_blank_reporter_name_for_busy() -> None:
+    payload = build_report_payload(
+        machine_id=3,
+        status="busy",
+        time_remaining_text="5",
+        reporter_name_text="   ",
+    )
+
+    assert payload == {
+        "machine_id": 3,
+        "status": "busy",
+        "time_remaining": 5,
+    }
+
+
 def test_build_report_payload_rejects_invalid_status() -> None:
     with pytest.raises(ValueError):
         build_report_payload(
@@ -161,6 +177,22 @@ def test_client_get_machine_history_success(monkeypatch: pytest.MonkeyPatch) -> 
 
     assert history == [{"id": 4, "machine_id": 1}]
     assert stub_client.requests[0]["params"] == {"limit": 3}
+
+
+def test_client_get_machine_history_uses_default_limit(monkeypatch: pytest.MonkeyPatch) -> None:
+    response = httpx.Response(200, json=[])
+    stub_client = StubHTTPXClient(response=response)
+    monkeypatch.setattr(
+        api_client_module.httpx,
+        "Client",
+        StubHTTPXClientFactory(stub_client),
+    )
+
+    client = LaundryAPIClient("http://backend:8000")
+    history = client.get_machine_history(machine_id=2)
+
+    assert history == []
+    assert stub_client.requests[0]["params"] == {"limit": 5}
 
 
 def test_submit_report_raises_on_unexpected_payload_type(
@@ -291,6 +323,20 @@ class StubSubmissionClient:
         if self.machines_error is not None:
             raise self.machines_error
         return self.machines_response
+
+
+def test_pop_flash_messages_clears_session(monkeypatch: pytest.MonkeyPatch) -> None:
+    session_state = {
+        page_flash_module.FLASH_SUCCESS_KEY: "Saved.",
+        page_flash_module.FLASH_ERROR_KEY: "Failed.",
+    }
+    monkeypatch.setattr(page_flash_module.st, "session_state", session_state, raising=False)
+
+    flash_success, flash_error = page_flash_module.pop_flash_messages()
+
+    assert flash_success == "Saved."
+    assert flash_error == "Failed."
+    assert session_state == {}
 
 
 def test_submit_report_form_returns_refreshed_machines(
