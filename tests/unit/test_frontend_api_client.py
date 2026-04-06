@@ -369,6 +369,43 @@ def test_submit_report_form_returns_refreshed_machines(
         "reporter_name": "Polina",
     }
     assert reset_calls == ["reset"]
-    assert submit_message == "Report #7 submitted."
+    assert submit_message == "Report #7 submitted successfully."
     assert submit_error is None
     assert machines == [{"id": 1, "inferred_status": "busy"}]
+
+
+def test_submit_report_form_when_refresh_fails_shows_only_error(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """When report saves but refresh fails, show only error message (no success)."""
+    reset_calls: list[str] = []
+    monkeypatch.setattr(
+        submission_module,
+        "reset_report_form_state",
+        lambda: reset_calls.append("reset"),
+    )
+    client = StubSubmissionClient(
+        submit_response={"id": 9},
+        machines_error=BackendUnavailableError("Backend offline"),
+    )
+    old_machines = [{"id": 1, "inferred_status": "free"}]
+
+    submit_message, submit_error, machines = submit_report_form(
+        client,  # type: ignore[arg-type]
+        machine_id=1,
+        status="free",
+        time_remaining_text="",
+        reporter_name_text="",
+        machines=old_machines,
+    )
+
+    # Report was saved, so success message should NOT appear
+    assert submit_message is None
+    # Only error message appears, clearly indicating what to do
+    assert submit_error is not None
+    assert "saved successfully" in submit_error
+    assert "click 'Refresh'" in submit_error
+    assert "Report #9" in submit_error
+    # Dashboard shows stale data (old machines), user must refresh
+    assert machines == old_machines
+
