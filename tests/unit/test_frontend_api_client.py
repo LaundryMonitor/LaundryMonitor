@@ -408,4 +408,3 @@ def test_submit_report_form_when_refresh_fails_shows_only_error(
     assert "Report #9" in submit_error
     # Dashboard shows stale data (old machines), user must refresh
     assert machines == old_machines
-
