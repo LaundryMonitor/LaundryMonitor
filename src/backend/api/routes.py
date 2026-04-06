@@ -19,6 +19,17 @@ from backend.services import (
 router = APIRouter()
 
 
+@router.get(
+    "/health",
+    tags=["Health"],
+    summary="Health check endpoint",
+    description="Simple health check for deployment orchestration and monitoring.",
+)
+async def health_check() -> dict[str, str]:
+    """Return health status of the API."""
+    return {"status": "ok"}
+
+
 @router.post(
     "/report",
     response_model=ReportResponse,
