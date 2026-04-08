@@ -6,14 +6,16 @@ import streamlit as st
 
 
 def format_timestamp(raw_timestamp: str) -> str:
-    """Format an ISO timestamp string for dashboard display."""
+    """Format an ISO timestamp string for dashboard display in local timezone."""
 
     normalized = raw_timestamp.replace("Z", "+00:00")
     try:
         parsed = datetime.fromisoformat(normalized)
+        # Convert UTC to local timezone
+        local_time = parsed.astimezone()
     except ValueError:
         return raw_timestamp
-    return parsed.strftime("%Y-%m-%d %H:%M")
+    return local_time.strftime("%Y-%m-%d %H:%M")
 
 
 def card_container():

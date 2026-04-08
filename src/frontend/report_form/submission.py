@@ -39,14 +39,20 @@ def submit_report_form(
 
     try:
         refreshed_machines = client.get_machines()
-    except (BackendUnavailableError, BackendResponseError) as exc:
+    except (BackendUnavailableError, BackendResponseError):
+        # When refresh fails, suppress success message to avoid confusion.
+        # Show only error so user knows to refresh manually.
         return (
-            f"Report #{response_data['id']} submitted.",
-            f"Report was submitted, but machine refresh failed: {exc}",
+            None,
+            (
+                f"Report #{response_data['id']} saved successfully, "
+                f"but dashboard refresh failed. "
+                f"Please click 'Refresh' button to see updates."
+            ),
             machines,
         )
 
-    return f"Report #{response_data['id']} submitted.", None, refreshed_machines
+    return f"Report #{response_data['id']} submitted successfully.", None, refreshed_machines
 
 
 def submit_free_report(
@@ -69,11 +75,17 @@ def submit_free_report(
 
     try:
         refreshed_machines = client.get_machines()
-    except (BackendUnavailableError, BackendResponseError) as exc:
+    except (BackendUnavailableError, BackendResponseError):
+        # When refresh fails, suppress success message to avoid confusion.
+        # Show only error so user knows to refresh manually.
         return (
-            f"Report #{response_data['id']} submitted.",
-            f"Report was submitted, but machine refresh failed: {exc}",
+            None,
+            (
+                f"Report #{response_data['id']} saved successfully, "
+                f"but dashboard refresh failed. "
+                f"Please click 'Refresh' button to see updates."
+            ),
             machines,
         )
 
-    return f"Report #{response_data['id']} submitted.", None, refreshed_machines
+    return f"Report #{response_data['id']} submitted successfully.", None, refreshed_machines

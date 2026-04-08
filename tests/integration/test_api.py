@@ -185,6 +185,15 @@ def test_get_machine_history_missing_machine(client) -> None:
     assert response.status_code == 404
 
 
+def test_health_check(client) -> None:
+    """Verify health check endpoint returns success."""
+    response = client.get("/health")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["status"] == "ok"
+
+
 def _create_machine(
     session_factory: sessionmaker[Session],
     name: str,

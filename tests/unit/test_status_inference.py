@@ -55,6 +55,27 @@ def test_busy_without_known_time_after_4_hours() -> None:
     assert result == InferredStatus.PROBABLY_FREE
 
 
+def test_busy_without_known_time_exactly_at_4_hour_boundary() -> None:
+    """Verify status exactly at 4-hour boundary transitions to PROBABLY_FREE."""
+    report = ReportSnapshot(
+        status=ReportStatus.BUSY,
+        timestamp=NOW - timedelta(hours=4),
+        time_remaining=None,
+    )
+
+    # At exactly 4 hours, should be PROBABLY_FREE
+    result = infer_machine_status(report, NOW)
+    assert result == InferredStatus.PROBABLY_FREE
+
+    # One microsecond before, should still be BUSY
+    result_before = infer_machine_status(report, NOW - timedelta(microseconds=1))
+    assert result_before == InferredStatus.BUSY
+
+    # One microsecond after, should be PROBABLY_FREE
+    result_after = infer_machine_status(report, NOW + timedelta(microseconds=1))
+    assert result_after == InferredStatus.PROBABLY_FREE
+
+
 def test_unavailable_latest_report() -> None:
     report = ReportSnapshot(
         status=ReportStatus.UNAVAILABLE,
