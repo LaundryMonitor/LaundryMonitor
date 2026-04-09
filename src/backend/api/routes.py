@@ -9,6 +9,7 @@ from backend.database import get_db
 from backend.schemas import MachineStatusResponse, ReportCreateRequest, ReportResponse
 from backend.services import (
     MachineNotFoundError,
+    InvalidTimeRemainingError,
     ReportRecord,
     create_report,
     get_machine_history,
@@ -53,6 +54,11 @@ async def post_report(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Machine {exc.machine_id} not found",
+        ) from exc
+    except InvalidTimeRemainingError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Remaining time value ({exc.remaining_time}) is out of bounds: (0, 1440]",
         ) from exc
 
     return _to_report_response(report)

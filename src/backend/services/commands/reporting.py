@@ -5,16 +5,20 @@ from sqlalchemy.orm import Session
 from backend.models import Report
 from backend.schemas import ReportCreateRequest
 from backend.services.commands.common import require_machine
-from backend.services.records import ReportRecord
+from backend.services.records import ReportRecord, InvalidTimeRemainingError
 from backend.types import ReportStatus
 
 
 def normalize_time_remaining(status: ReportStatus, time_remaining: int | None) -> int | None:
     """Keep remaining time only for reports marked as busy."""
 
-    if status != ReportStatus.BUSY:
+    if status != ReportStatus.BUSY or time_remaining is None:
         return None
-    return time_remaining
+
+    if 0 < time_remaining <= 1440:
+        return time_remaining
+
+    raise InvalidTimeRemainingError(time_remaining)
 
 
 def create_report(session: Session, payload: ReportCreateRequest) -> ReportRecord:
