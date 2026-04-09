@@ -12,7 +12,7 @@ from backend.types import ReportStatus
 def normalize_time_remaining(status: ReportStatus, time_remaining: int | None) -> int | None:
     """Keep remaining time only for reports marked as busy."""
 
-    if status != ReportStatus.BUSY:
+    if status != ReportStatus.BUSY or time_remaining == None:
         return None
 
     if 0 < time_remaining <= 1440:
