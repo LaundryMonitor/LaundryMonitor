@@ -13,6 +13,4 @@ def parse_optional_non_negative_int(raw_value: str) -> int | None:
     if int_value == 0:
         raise ValueError("Time remaining must be positive integer")
 
-    print(value)
-    print(int_value)
     return int_value
