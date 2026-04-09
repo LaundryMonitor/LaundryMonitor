@@ -9,7 +9,6 @@ from backend.services.records import ReportRecord, InvalidTimeRemainingError
 from backend.types import ReportStatus
 
 
-
 def normalize_time_remaining(status: ReportStatus, time_remaining: int | None) -> int | None:
     """Keep remaining time only for reports marked as busy."""
 
@@ -18,7 +17,7 @@ def normalize_time_remaining(status: ReportStatus, time_remaining: int | None) -
 
     if 0 < time_remaining <= 1440:
         return time_remaining
-    
+
     raise InvalidTimeRemainingError(time_remaining)
 
 
