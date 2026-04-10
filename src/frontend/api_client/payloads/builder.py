@@ -26,6 +26,8 @@ def build_report_payload(
     # Include optional reporter metadata only when it was provided.
     reporter_name = reporter_name_text.strip()
     if reporter_name:
+        if len(reporter_name) > 100:
+            raise ValueError("Reporter name must be up to 100 characters.")
         payload["reporter_name"] = reporter_name
 
     # Include remaining time only for busy-machine reports.
