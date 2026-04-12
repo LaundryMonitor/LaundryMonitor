@@ -16,6 +16,7 @@ services:
       dockerfile: Dockerfile.frontend
     environment:
       LAUNDRY_MONITOR_API_URL: http://backend:8000
+      TZ: Europe/Moscow
     ports:
       - "8501:8501"
     depends_on:
