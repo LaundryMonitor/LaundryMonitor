@@ -12,7 +12,8 @@ def test_format_timestamp_utc_to_local() -> None:
 
     # Result should be a formatted string (exact time depends on system timezone)
     assert isinstance(result, str)
-    assert "2026-01-15" in result
+    # The date might shift by 1 day in either direction depending on local timezone
+    assert any(date in result for date in ["2026-01-14", "2026-01-15", "2026-01-16"])
     # The hour should be converted (will vary by timezone)
     assert ":" in result  # Has time separator
 
@@ -25,7 +26,8 @@ def test_format_timestamp_with_z_suffix() -> None:
     result = format_timestamp(utc_time)
 
     assert isinstance(result, str)
-    assert "2026-01-15" in result
+    # Date might shift depending on the runner's timezone relative to UTC
+    assert any(date in result for date in ["2026-01-14", "2026-01-15", "2026-01-16"])
 
 
 def test_format_timestamp_invalid_format_returns_original() -> None:
@@ -58,5 +60,5 @@ def test_format_timestamp_midnight_utc() -> None:
     result = format_timestamp(midnight_utc)
 
     assert isinstance(result, str)
-    assert "2026-06-01" in result
-    # Hour should be converted based on local timezone (not 00:00 if not in UTC zone)
+    # Midnight UTC is 19:00 previous day in NYC (-5) or 03:00 same day in Moscow (+3)
+    assert any(date in result for date in ["2026-05-31", "2026-06-01", "2026-06-02"])

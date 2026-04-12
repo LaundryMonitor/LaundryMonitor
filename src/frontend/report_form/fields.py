@@ -78,6 +78,7 @@ def collect_report_fields(
     # Render optional metadata and the submit action last.
     reporter_name_text = st.text_input(
         "Reporter name (optional)",
+        max_chars=100,
         key=FORM_REPORTER_KEY,
     )
     submitted = st.button("Submit Report")

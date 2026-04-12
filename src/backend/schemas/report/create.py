@@ -10,10 +10,12 @@ class ReportCreateRequest(BaseModel):
     status: ReportStatus
     time_remaining: int | None = Field(
         default=None,
-        ge=0,
+        gt=0,
+        le=1440,
         description=(
             "Remaining minutes. Used only when status is 'busy'. "
-            "For other statuses it is accepted but stored as null."
+            "For other statuses it is accepted but stored as null. "
+            "Must be between 1 and 1440."
         ),
     )
     reporter_name: str | None = Field(default=None, max_length=100)

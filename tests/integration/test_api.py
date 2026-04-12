@@ -75,6 +75,23 @@ def test_post_report_negative_time_remaining(
     assert response.status_code == 422
 
 
+def test_post_report_time_remaining_too_large(
+    client, session_factory: sessionmaker[Session]
+) -> None:
+    machine_id = _create_machine(session_factory, "Washer 1", MachineType.WASH)
+
+    response = client.post(
+        "/report",
+        json={
+            "machine_id": machine_id,
+            "status": "busy",
+            "time_remaining": 1441,
+        },
+    )
+
+    assert response.status_code == 422
+
+
 def test_post_report_non_busy_time_remaining_is_ignored(
     client, session_factory: sessionmaker[Session]
 ) -> None:
