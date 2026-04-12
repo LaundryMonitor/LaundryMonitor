@@ -1,0 +1,91 @@
+from __future__ import annotations
+
+from typing import Any
+
+from frontend.api_client import (
+    BackendResponseError,
+    BackendUnavailableError,
+    LaundryAPIClient,
+    build_report_payload,
+)
+from frontend.report_form.fields import reset_report_form_state
+
+
+def submit_report_form(
+    client: LaundryAPIClient,
+    *,
+    machine_id: int,
+    status: str,
+    time_remaining_text: str,
+    reporter_name_text: str,
+    machines: list[dict[str, Any]],
+) -> tuple[str | None, str | None, list[dict[str, Any]]]:
+    """Submit a report and refresh machines for the frontend."""
+
+    try:
+        payload = build_report_payload(
+            machine_id=machine_id,
+            status=status,
+            time_remaining_text=time_remaining_text,
+            reporter_name_text=reporter_name_text,
+        )
+        response_data = client.submit_report(payload)
+    except ValueError as exc:
+        return None, str(exc), machines
+    except (BackendUnavailableError, BackendResponseError) as exc:
+        return None, str(exc), machines
+
+    reset_report_form_state()
+
+    try:
+        refreshed_machines = client.get_machines()
+    except (BackendUnavailableError, BackendResponseError):
+        # When refresh fails, suppress success message to avoid confusion.
+        # Show only error so user knows to refresh manually.
+        return (
+            None,
+            (
+                f"Report #{response_data['id']} saved successfully, "
+                f"but dashboard refresh failed. "
+                f"Please click 'Refresh' button to see updates."
+            ),
+            machines,
+        )
+
+    return f"Report #{response_data['id']} submitted successfully.", None, refreshed_machines
+
+
+def submit_free_report(
+    client: LaundryAPIClient,
+    *,
+    machine_id: int,
+    machines: list[dict[str, Any]],
+) -> tuple[str | None, str | None, list[dict[str, Any]]]:
+    """Submit a free report directly from a machine card."""
+
+    try:
+        response_data = client.submit_report(
+            {
+                "machine_id": machine_id,
+                "status": "free",
+            }
+        )
+    except (BackendUnavailableError, BackendResponseError) as exc:
+        return None, str(exc), machines
+
+    try:
+        refreshed_machines = client.get_machines()
+    except (BackendUnavailableError, BackendResponseError):
+        # When refresh fails, suppress success message to avoid confusion.
+        # Show only error so user knows to refresh manually.
+        return (
+            None,
+            (
+                f"Report #{response_data['id']} saved successfully, "
+                f"but dashboard refresh failed. "
+                f"Please click 'Refresh' button to see updates."
+            ),
+            machines,
+        )
+
+    return f"Report #{response_data['id']} submitted successfully.", None, refreshed_machines

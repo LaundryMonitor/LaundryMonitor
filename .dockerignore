@@ -1,0 +1,9 @@
+.git
+.gitignore
+.pytest_cache
+.ruff_cache
+__pycache__
+*.pyc
+.venv
+laundry_monitor.db
+tests
